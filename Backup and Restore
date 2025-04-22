@@ -1,0 +1,34 @@
+-- backup_restore.sql
+-- Purpose: Demonstrates SQL Server backup and restore operations
+-- Created by Anubhav for apexanalytix portfolio
+
+-- Create sample database
+CREATE DATABASE SampleDB;
+GO
+
+-- Use the database
+USE SampleDB;
+GO
+
+-- Create a sample table
+CREATE TABLE Invoices (
+    invoice_id VARCHAR(10),
+    amount DECIMAL(10,2)
+);
+
+-- Insert sample data
+INSERT INTO Invoices VALUES
+('INV001', 1000.50),
+('INV002', 2000.75);
+
+-- Backup the database
+BACKUP DATABASE SampleDB
+TO DISK = 'C:\Backups\SampleDB.bak'
+WITH FORMAT, INIT;
+
+-- Simulate a restore to a new database
+RESTORE DATABASE SampleDB_Restored
+FROM DISK = 'C:\Backups\SampleDB.bak'
+WITH MOVE 'SampleDB' TO 'C:\SQLData\SampleDB_Restored.mdf',
+     MOVE 'SampleDB_log' TO 'C:\SQLData\SampleDB_Restored_log.ldf',
+     REPLACE;
