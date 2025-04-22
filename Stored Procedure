@@ -1,0 +1,48 @@
+-- stored_procedure.sql
+-- Purpose: Updates invoice status to 'Processed' for invoices older than 30 days
+-- Created by Anubhav for apexanalytix portfolio
+
+-- Create table for invoices
+CREATE TABLE ApexPortal_Invoices (
+    invoice_id VARCHAR(10),
+    total DECIMAL(10,2),
+    created_date DATE,
+    status VARCHAR(20)
+);
+
+-- Insert sample data
+INSERT INTO ApexPortal_Invoices VALUES
+('INV001', 1000.50, '2025-03-01', 'Pending'),
+('INV002', 2000.75, '2025-04-02', 'Pending'),
+('INV003', 1500.00, '2025-03-15', 'Pending');
+
+-- Create stored procedure with error handling
+CREATE PROCEDURE UpdateInvoiceStatus
+AS
+BEGIN
+    BEGIN TRY
+        -- Update status for invoices older than 30 days
+        UPDATE ApexPortal_Invoices
+        SET status = 'Processed'
+        WHERE created_date < DATEADD(day, -30, GETDATE());
+
+        -- Log success
+        INSERT INTO LogTable (log_message, log_date)
+        VALUES ('Invoice status updated successfully', GETDATE());
+    END TRY
+    BEGIN CATCH
+        -- Log error
+        INSERT INTO LogTable (log_message, log_date)
+        VALUES ('Error updating invoice status: ' + ERROR_MESSAGE(), GETDATE());
+    END CATCH
+END;
+
+-- Create log table
+CREATE TABLE LogTable (
+    log_id INT IDENTITY(1,1) PRIMARY KEY,
+    log_message VARCHAR(255),
+    log_date DATETIME
+);
+
+-- Execute procedure
+EXEC UpdateInvoiceStatus;
